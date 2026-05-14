@@ -27,7 +27,7 @@ export default class Modal {
 
   open(body = document.body) { 
     body.appendChild(this.container);
-    this.container.classList.add('is-modal-open');
+    document.body.classList.add('is-modal-open');
     this.closeX();
     this.closeEsc();
   }
@@ -46,7 +46,7 @@ export default class Modal {
   closeModal() {
     const button = this.container.querySelector('.modal__close');
     button.removeEventListener('click', () => this.closeModal());
-    this.container.classList.remove('is-modal-open');
+    document.body.classList.remove('is-modal-open');
     this.container.remove();
   }
 
