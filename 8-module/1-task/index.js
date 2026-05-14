@@ -44,56 +44,52 @@ export default class CartIcon {
 
   if (!icon || !cardContainer) return;
 
-  // Инициализируем this.elementTop, если не установлено
-  if (this.elementTop === undefined) {
-    this.elementTop = cardContainer.getBoundingClientRect().top + window.pageYOffset;
+  if (!this.initialTopCoord) {
+    this.initialTopCoord = this.elem.getBoundingClientRect().top + window.pageYOffset;
   }
 
-  const pageWidth = document.documentElement.clientWidth; // Без учёта скроллбара
-  const rightEdgeOfContainer = cardContainer.getBoundingClientRect().right;
+  const pageWidth = document.documentElement.clientWidth;
+  const containerRect = cardContainer.getBoundingClientRect();
+  const rightEdgeOfContainer = containerRect.right;
 
-  // Корректное условие: пользователь прокрутил ниже начальной позиции элемента
-  const isScrolledPastElement = window.scrollY > this.elementTop;
+  const iconPosition = rightEdgeOfContainer + 20;
+  const iconLeftPosition = pageWidth - icon.offsetWidth - 10;
+  const leftIndent = Math.min(iconPosition, iconLeftPosition) + 'px';
 
+  // Сохраняем исходные размеры иконки
+  const originalWidth = icon.offsetWidth;
+  const originalHeight = icon.offsetHeight;
 
   if (pageWidth <= 767) {
     Object.assign(icon.style, {
-      position: 'absolute',
+      position: '',
       top: '',
       left: '',
       zIndex: '',
       width: '',
       height: ''
     });
-  } else if (!isScrolledPastElement) {
-    // Пользователь ещё не доскроллил до элемента — сбрасываем фиксированное позиционирование
-    Object.assign(icon.style, {
-      position: 'absolute',
-      top: '',
-      left: '',
-      zIndex: '',
-      width: '',
-      height: ''
-    });
-  } else if (pageWidth - (rightEdgeOfContainer + 20) - icon.offsetWidth < 10) {
-    // Места справа от контейнера недостаточно — прижимаем к правому краю с отступом 10 px
+    return;
+  }
+
+  if (window.pageYOffset > this.initialTopCoord) {
+    // Явно задаём размеры при фиксированном позиционировании
     Object.assign(icon.style, {
       position: 'fixed',
       top: '50px',
-      left: `${pageWidth - icon.offsetWidth - 10}px`,
+      left: leftIndent,
       zIndex: 1000,
-      width: `${icon.offsetWidth}px`,
-      height: `${icon.offsetHeight}px`
+      width: `${originalWidth}px`,
+      height: `${originalHeight}px`
     });
   } else {
-    // Достаточно места — размещаем на 20 px правее правого края контейнера
     Object.assign(icon.style, {
-      position: 'fixed',
-      top: '50px',
-      left: `${rightEdgeOfContainer + 20}px`,
-      zIndex: 1000,
-      width: `${icon.offsetWidth}px`,
-      height: `${icon.offsetHeight}px`
+      position: '',
+      top: '',
+      left: '',
+      zIndex: '',
+      width: '',
+      height: ''
     });
   }
 }
