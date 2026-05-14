@@ -68,7 +68,7 @@ export default class StepSlider {
 
   
     this.pointermoveHandler = () => {
-      this.pointerMove();
+      this.pointerMove(event);
   };
   
     this.pointerupHandler = () => {
@@ -125,7 +125,7 @@ pointerMove(event) {
   pointerUp () {
     
     let slider = this.slider.querySelector('.slider');
-    this.slider.classList.remove('slider_dragging');
+    this.slider.classList.remove('slider__dragging');
   
     document.removeEventListener('pointermove', this.pointermoveHandler);
     document.removeEventListener('pointerup', this.pointerupHandler);
