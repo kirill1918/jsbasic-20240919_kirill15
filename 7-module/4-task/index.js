@@ -16,13 +16,14 @@ export default class StepSlider {
 
     for (let i = 0; i < this.steps; i++) {
       const step = document.createElement('span');
+      step.setAttribute('data-id', i); // Добавлено из второго кода
       if (i === this.value) {
         step.classList.add('slider__step-active');
       }
       sliderSteps.appendChild(step);
     }
 
-    
+    // Инициализируем позицию на основе this.value
     this.updatePosition();
 
     this.Slide();
@@ -30,7 +31,7 @@ export default class StepSlider {
   }
 
   updatePosition() {
-    const segments = Math.max(this.steps - 1, 1); 
+    const segments = Math.max(this.steps - 1, 1); // Защита от деления на ноль
     const valuePercents = (this.value / segments) * 100;
 
     this.thumb = this.slider.querySelector('.slider__thumb');
@@ -49,26 +50,25 @@ export default class StepSlider {
     this.slider.addEventListener('click', (event) => {
       let left = event.clientX - this.elem.getBoundingClientRect().left;
       let leftRelative = left / this.elem.offsetWidth;
+
+      if (leftRelative < 0) leftRelative = 0;
+      if (leftRelative > 1) leftRelative = 1;
+
       let segments = Math.max(this.steps - 1, 1);
-      let value = Math.round(leftRelative * segments);
+      let approximateValue = leftRelative * segments;
+      let value = Math.round(approximateValue);
       this.value = value;
 
       let valuePercents = (value / segments) * 100;
+
       this.thumb.style.left = `${valuePercents}%`;
       this.progress.style.width = `${valuePercents}%`;
 
       this.slider.querySelector('.slider__value').textContent = this.value;
 
-      const steps = this.slider.querySelectorAll('.slider__steps span');
-      for (let i = 0; i < steps.length; i++) {
-        if (i === this.value) {
-          steps[i].classList.add('slider__step-active');
-        } else {
-          steps[i].classList.remove('slider__step-active');
-        }
-      }
+      this.updateActiveStep(this.value);
 
-      this.dispatchSlider();
+      this.dispatchEventBubble();
     });
   }
 
@@ -82,11 +82,9 @@ export default class StepSlider {
 
     this.thumb.addEventListener('pointerdown', (event) => {
       event.preventDefault();
-      
       this.shiftX = event.clientX - this.thumb.getBoundingClientRect().left;
       this.slider.classList.add('slider_dragging');
 
-      
       const onMove = (moveEvent) => {
         moveEvent.preventDefault();
         this.pointerMove(moveEvent);
@@ -104,61 +102,53 @@ export default class StepSlider {
   }
 
   pointerMove(event) {
-    
-    const sliderRect = this.elem.getBoundingClientRect();
-    let thumbLeft = event.clientX - sliderRect.left - this.shiftX;
+    let left = event.clientX - this.elem.getBoundingClientRect().left - this.shiftX;
+    let leftRelative = left / this.elem.offsetWidth;
 
-    
-    if (thumbLeft < 0) thumbLeft = 0;
-    if (thumbLeft > this.elem.offsetWidth) thumbLeft = this.elem.offsetWidth;
+    if (leftRelative < 0) leftRelative = 0;
+    if (leftRelative > 1) leftRelative = 1;
 
-    
-    let leftRelative = thumbLeft / this.elem.offsetWidth;
     let leftPercents = leftRelative * 100;
+    let segments = Math.max(this.steps - 1, 1);
+    let approximateValue = leftRelative * segments;
+    let value = Math.round(approximateValue);
 
-    
     this.thumb.style.left = `${leftPercents}%`;
     this.progress.style.width = `${leftPercents}%`;
-
-   
-    let segments = Math.max(this.steps - 1, 1);
-    let value = Math.round(leftRelative * segments);
 
     if (this.value !== value) {
       this.value = value;
       this.slider.querySelector('.slider__value').textContent = this.value;
-      this.updateActiveStep(); 
-      this.dispatchSlider(); 
+      this.updateActiveStep(this.value);
     }
-  }
-
-  updateActiveStep() {
-    const steps = this.slider.querySelectorAll('.slider__steps span');
-    steps.forEach((step, index) => {
-      if (index === this.value) {
-        step.classList.add('slider__step-active');
-      } else {
-        step.classList.remove('slider__step-active');
-      }
-    });
   }
 
   pointerUp() {
     this.slider.classList.remove('slider_dragging');
+    document.removeEventListener('pointermove', this.pointermoveHandler);
+    document.removeEventListener('pointerup', this.pointerupHandler);
+
+    this.dispatchEventBubble();
   }
 
-  dispatchSlider() {
-    this.slider.dispatchEvent(new CustomEvent('slider-change', {
+  updateActiveStep(value) {
+    const steps = this.slider.querySelectorAll('.slider__steps span');
+    steps.forEach(step => step.classList.remove('slider__step-active'));
+    steps[value].classList.add('slider__step-active');
+  }
+
+  dispatchEventBubble() {
+    const customEvent = new CustomEvent('slider-change', {
       detail: this.value,
       bubbles: true
-    }));
+    });
+    this.slider.dispatchEvent(customEvent);
   }
 
   get elem() {
     return this.slider;
   }
 }
-
 
 
 
