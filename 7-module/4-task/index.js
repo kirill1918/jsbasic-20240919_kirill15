@@ -22,8 +22,24 @@ export default class StepSlider {
       sliderSteps.appendChild(step);
     }
 
+    
+    this.updatePosition();
+
     this.Slide();
     this.pointerDown();
+  }
+
+  updatePosition() {
+    const segments = Math.max(this.steps - 1, 1); 
+    const valuePercents = (this.value / segments) * 100;
+
+    this.thumb = this.slider.querySelector('.slider__thumb');
+    this.progress = this.slider.querySelector('.slider__progress');
+
+    if (this.thumb && this.progress) {
+      this.thumb.style.left = `${valuePercents}%`;
+      this.progress.style.width = `${valuePercents}%`;
+    }
   }
 
   Slide() {
@@ -33,13 +49,14 @@ export default class StepSlider {
     this.slider.addEventListener('click', (event) => {
       let left = event.clientX - this.elem.getBoundingClientRect().left;
       let leftRelative = left / this.elem.offsetWidth;
-      let segments = this.steps - 1;
+      let segments = Math.max(this.steps - 1, 1);
       let value = Math.round(leftRelative * segments);
-      let valuePercents = (value / segments) * 100;
+      this.value = value;
 
+      let valuePercents = (value / segments) * 100;
       this.thumb.style.left = `${valuePercents}%`;
       this.progress.style.width = `${valuePercents}%`;
-      this.value = value;
+
       this.slider.querySelector('.slider__value').textContent = this.value;
 
       const steps = this.slider.querySelectorAll('.slider__steps span');
@@ -50,6 +67,7 @@ export default class StepSlider {
           steps[i].classList.remove('slider__step-active');
         }
       }
+
       this.dispatchSlider();
     });
   }
@@ -64,8 +82,7 @@ export default class StepSlider {
 
     this.thumb.addEventListener('pointerdown', (event) => {
       event.preventDefault();
-
-     
+      
       this.shiftX = event.clientX - this.thumb.getBoundingClientRect().left;
       this.slider.classList.add('slider_dragging');
 
@@ -88,40 +105,42 @@ export default class StepSlider {
 
   pointerMove(event) {
     
-    let left = event.clientX - this.elem.getBoundingClientRect().left - this.shiftX;
+    const sliderRect = this.elem.getBoundingClientRect();
+    let thumbLeft = event.clientX - sliderRect.left - this.shiftX;
 
     
-    if (left < 0) left = 0;
-    if (left > this.elem.offsetWidth) left = this.elem.offsetWidth;
+    if (thumbLeft < 0) thumbLeft = 0;
+    if (thumbLeft > this.elem.offsetWidth) thumbLeft = this.elem.offsetWidth;
 
-   
-    const leftPercents = (left / this.elem.offsetWidth) * 100;
+    
+    let leftRelative = thumbLeft / this.elem.offsetWidth;
+    let leftPercents = leftRelative * 100;
 
     
     this.thumb.style.left = `${leftPercents}%`;
     this.progress.style.width = `${leftPercents}%`;
 
-    
-    const segments = this.steps - 1;
-    const value = Math.round((leftPercents / 100) * segments);
+   
+    let segments = Math.max(this.steps - 1, 1);
+    let value = Math.round(leftRelative * segments);
 
-    
     if (this.value !== value) {
       this.value = value;
       this.slider.querySelector('.slider__value').textContent = this.value;
-
-      
-      const steps = this.slider.querySelectorAll('.slider__steps span');
-      for (let i = 0; i < steps.length; i++) {
-        if (i === this.value) {
-          steps[i].classList.add('slider__step-active');
-        } else {
-          steps[i].classList.remove('slider__step-active');
-        }
-      }
-
+      this.updateActiveStep(); 
       this.dispatchSlider(); 
     }
+  }
+
+  updateActiveStep() {
+    const steps = this.slider.querySelectorAll('.slider__steps span');
+    steps.forEach((step, index) => {
+      if (index === this.value) {
+        step.classList.add('slider__step-active');
+      } else {
+        step.classList.remove('slider__step-active');
+      }
+    });
   }
 
   pointerUp() {
@@ -129,7 +148,6 @@ export default class StepSlider {
   }
 
   dispatchSlider() {
-    console.log('Event dispatched:', this.value);
     this.slider.dispatchEvent(new CustomEvent('slider-change', {
       detail: this.value,
       bubbles: true
