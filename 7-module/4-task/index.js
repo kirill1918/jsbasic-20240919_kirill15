@@ -77,11 +77,13 @@ export default class StepSlider {
   this.progress = this.slider.querySelector('.slider__progress');
   this.thumb.ondragstart = () => false;
 
+  
   this.thumb.style.position = 'absolute';
   this.thumb.style.zIndex = 9999;
 
   this.thumb.addEventListener('pointerdown', (event) => {
     event.preventDefault();
+    
     this.shiftX = event.clientX - this.thumb.getBoundingClientRect().left;
     this.slider.classList.add('slider_dragging');
 
@@ -106,20 +108,23 @@ pointerMove(event) {
   let left = event.clientX - this.elem.getBoundingClientRect().left - this.shiftX;
   let leftRelative = left / this.elem.offsetWidth;
 
- 
+  
   if (leftRelative < 0) leftRelative = 0;
   if (leftRelative > 1) leftRelative = 1;
 
+  
   let leftPercents = leftRelative * 100;
-  let segments = Math.max(this.steps - 1, 1);
-  let approximateValue = leftRelative * segments;
-  let value = Math.round(approximateValue);
 
   
   this.thumb.style.left = `${leftPercents}%`;
   this.progress.style.width = `${leftPercents}%`;
 
- 
+  
+  let segments = Math.max(this.steps - 1, 1);
+  let approximateValue = leftRelative * segments;
+  let value = Math.round(approximateValue);
+
+  
   if (this.value !== value) {
     this.value = value;
     this.slider.querySelector('.slider__value').textContent = this.value;
