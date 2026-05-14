@@ -62,6 +62,7 @@ export default class StepSlider {
    pointerDown() {
   this.thumb = this.slider.querySelector('.slider__thumb');
   this.progress = this.slider.querySelector('.slider__progress');
+  this.thumb.ondragstart = () => false;
 
   this.thumb.style.position = 'absolute';
   this.thumb.style.zIndex = 9999;
