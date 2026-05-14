@@ -106,18 +106,23 @@ pointerMove(event) {
   let left = event.clientX - this.slider.getBoundingClientRect().left - this.shiftX;
   let leftRelative = left / this.slider.offsetWidth;
 
+  
   if (leftRelative < 0) leftRelative = 0;
   if (leftRelative > 1) leftRelative = 1;
 
+  
   let leftPercents = leftRelative * 100;
 
+  
   this.thumb.style.left = `${leftPercents}%`;
   this.progress.style.width = `${leftPercents}%`;
 
-  let segments = Math.max(this.steps - 1, 1); 
+  
+  let segments = Math.max(this.steps - 1, 1);
   let approximateValue = leftRelative * segments;
   let value = Math.round(approximateValue);
 
+  
   if (this.value !== value) {
     this.value = value;
     this.slider.querySelector('.slider__value').textContent = this.value;
