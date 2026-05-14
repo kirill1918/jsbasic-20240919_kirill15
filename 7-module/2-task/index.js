@@ -47,7 +47,13 @@ export default class Modal {
     bodyElement.appendChild(node);
   }
 
+ 
+  close() {
+    this.closeModal();
+  }
+
   closeModal() {
+    
     if (this.buttonEsc) {
       document.removeEventListener('keydown', this.buttonEsc);
       this.buttonEsc = null;
