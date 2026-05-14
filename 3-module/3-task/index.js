@@ -1,3 +1,10 @@
+let str = 'background-color';
 function camelize(str) {
-  // ваш код...
+  let str1 = str.split('-');
+
+  return str1.map((word, index) => index === 0 ? word : word[0].toUpperCase() + word.slice(1)).join('');
 }
+
+
+let result = camelize(str);
+console.log(result)
