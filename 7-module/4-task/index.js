@@ -44,33 +44,31 @@ export default class StepSlider {
   }
 
   Slide() {
-    this.thumb = this.slider.querySelector('.slider__thumb');
-    this.progress = this.slider.querySelector('.slider__progress');
+  
+  this.slider.addEventListener('click', (event) => {
+    let left = event.clientX - this.slider.getBoundingClientRect().left;
+    let leftRelative = left / this.slider.offsetWidth;
 
-    this.slider.addEventListener('click', (event) => {
-      let left = event.clientX - this.elem.getBoundingClientRect().left;
-      let leftRelative = left / this.elem.offsetWidth;
+    if (leftRelative < 0) leftRelative = 0;
+    if (leftRelative > 1) leftRelative = 1;
 
-      if (leftRelative < 0) leftRelative = 0;
-      if (leftRelative > 1) leftRelative = 1;
+    let segments = Math.max(this.steps - 1, 1); 
+    let approximateValue = leftRelative * segments;
+    let value = Math.round(approximateValue);
+    this.value = value;
 
-      let segments = Math.max(this.steps - 1, 1);
-      let approximateValue = leftRelative * segments;
-      let value = Math.round(approximateValue);
-      this.value = value;
+    let valuePercents = (value / segments) * 100;
 
-      let valuePercents = (value / segments) * 100;
+    this.thumb.style.left = `${valuePercents}%`;
+    this.progress.style.width = `${valuePercents}%`;
 
-      this.thumb.style.left = `${valuePercents}%`;
-      this.progress.style.width = `${valuePercents}%`;
+    this.slider.querySelector('.slider__value').textContent = this.value;
 
-      this.slider.querySelector('.slider__value').textContent = this.value;
+    this.updateActiveStep(this.value);
 
-      this.updateActiveStep(this.value);
-
-      this.dispatchEventBubble();
-    });
-  }
+    this.dispatchEventBubble();
+  });
+}
 
   pointerDown() {
   this.thumb = this.slider.querySelector('.slider__thumb');
@@ -105,26 +103,21 @@ export default class StepSlider {
 
 pointerMove(event) {
   
-  let left = event.clientX - this.elem.getBoundingClientRect().left - this.shiftX;
-  let leftRelative = left / this.elem.offsetWidth;
+  let left = event.clientX - this.slider.getBoundingClientRect().left - this.shiftX;
+  let leftRelative = left / this.slider.offsetWidth;
 
-  
   if (leftRelative < 0) leftRelative = 0;
   if (leftRelative > 1) leftRelative = 1;
 
-  
   let leftPercents = leftRelative * 100;
 
-  
   this.thumb.style.left = `${leftPercents}%`;
   this.progress.style.width = `${leftPercents}%`;
 
-  
-  let segments = Math.max(this.steps - 1, 1);
+  let segments = Math.max(this.steps - 1, 1); 
   let approximateValue = leftRelative * segments;
   let value = Math.round(approximateValue);
 
-  
   if (this.value !== value) {
     this.value = value;
     this.slider.querySelector('.slider__value').textContent = this.value;
