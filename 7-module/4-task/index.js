@@ -16,14 +16,14 @@ export default class StepSlider {
 
     for (let i = 0; i < this.steps; i++) {
       const step = document.createElement('span');
-      step.setAttribute('data-id', i); // Добавлено из второго кода
+      step.setAttribute('data-id', i); 
       if (i === this.value) {
         step.classList.add('slider__step-active');
       }
       sliderSteps.appendChild(step);
     }
 
-    // Инициализируем позицию на основе this.value
+    
     this.updatePosition();
 
     this.Slide();
@@ -31,7 +31,7 @@ export default class StepSlider {
   }
 
   updatePosition() {
-    const segments = Math.max(this.steps - 1, 1); // Защита от деления на ноль
+    const segments = Math.max(this.steps - 1, 1); 
     const valuePercents = (this.value / segments) * 100;
 
     this.thumb = this.slider.querySelector('.slider__thumb');
@@ -73,63 +73,64 @@ export default class StepSlider {
   }
 
   pointerDown() {
-    this.thumb = this.slider.querySelector('.slider__thumb');
-    this.progress = this.slider.querySelector('.slider__progress');
-    this.thumb.ondragstart = () => false;
+  this.thumb = this.slider.querySelector('.slider__thumb');
+  this.progress = this.slider.querySelector('.slider__progress');
+  this.thumb.ondragstart = () => false;
 
-    this.thumb.style.position = 'absolute';
-    this.thumb.style.zIndex = 9999;
+  this.thumb.style.position = 'absolute';
+  this.thumb.style.zIndex = 9999;
 
-    this.thumb.addEventListener('pointerdown', (event) => {
-      event.preventDefault();
-      this.shiftX = event.clientX - this.thumb.getBoundingClientRect().left;
-      this.slider.classList.add('slider_dragging');
+  this.thumb.addEventListener('pointerdown', (event) => {
+    event.preventDefault();
+    this.shiftX = event.clientX - this.thumb.getBoundingClientRect().left;
+    this.slider.classList.add('slider_dragging');
 
-      const onMove = (moveEvent) => {
-        moveEvent.preventDefault();
-        this.pointerMove(moveEvent);
-      };
+    const onMove = (moveEvent) => {
+      moveEvent.preventDefault();
+      this.pointerMove(moveEvent);
+    };
 
-      const onUp = () => {
-        this.pointerUp();
-        document.removeEventListener('pointermove', onMove);
-        document.removeEventListener('pointerup', onUp);
-      };
+    const onUp = () => {
+      this.pointerUp();
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+    };
 
-      document.addEventListener('pointermove', onMove);
-      document.addEventListener('pointerup', onUp);
-    });
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+  });
+}
+
+pointerMove(event) {
+  
+  let left = event.clientX - this.elem.getBoundingClientRect().left - this.shiftX;
+  let leftRelative = left / this.elem.offsetWidth;
+
+ 
+  if (leftRelative < 0) leftRelative = 0;
+  if (leftRelative > 1) leftRelative = 1;
+
+  let leftPercents = leftRelative * 100;
+  let segments = Math.max(this.steps - 1, 1);
+  let approximateValue = leftRelative * segments;
+  let value = Math.round(approximateValue);
+
+  
+  this.thumb.style.left = `${leftPercents}%`;
+  this.progress.style.width = `${leftPercents}%`;
+
+ 
+  if (this.value !== value) {
+    this.value = value;
+    this.slider.querySelector('.slider__value').textContent = this.value;
+    this.updateActiveStep(this.value);
   }
+}
 
-  pointerMove(event) {
-    let left = event.clientX - this.elem.getBoundingClientRect().left - this.shiftX;
-    let leftRelative = left / this.elem.offsetWidth;
-
-    if (leftRelative < 0) leftRelative = 0;
-    if (leftRelative > 1) leftRelative = 1;
-
-    let leftPercents = leftRelative * 100;
-    let segments = Math.max(this.steps - 1, 1);
-    let approximateValue = leftRelative * segments;
-    let value = Math.round(approximateValue);
-
-    this.thumb.style.left = `${leftPercents}%`;
-    this.progress.style.width = `${leftPercents}%`;
-
-    if (this.value !== value) {
-      this.value = value;
-      this.slider.querySelector('.slider__value').textContent = this.value;
-      this.updateActiveStep(this.value);
-    }
-  }
-
-  pointerUp() {
-    this.slider.classList.remove('slider_dragging');
-    document.removeEventListener('pointermove', this.pointermoveHandler);
-    document.removeEventListener('pointerup', this.pointerupHandler);
-
-    this.dispatchEventBubble();
-  }
+pointerUp() {
+  this.slider.classList.remove('slider_dragging');
+  this.dispatchEventBubble();
+}
 
   updateActiveStep(value) {
     const steps = this.slider.querySelectorAll('.slider__steps span');
