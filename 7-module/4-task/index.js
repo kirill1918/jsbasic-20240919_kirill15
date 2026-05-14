@@ -54,14 +54,11 @@ export default class StepSlider {
             steps[i].classList.remove('slider__step-active');
           }
         }
-  
-        this.slider.dispatchEvent(new CustomEvent('slider-change' , {
-          detail: this.value,
-          bubbles: true,
-        }));
-      });
-  }
+        this.dispatchSlider();
+      })
+    }
 
+  
    pointerDown() {
   this.thumb = this.slider.querySelector('.slider__thumb');
   this.progress = this.slider.querySelector('.slider__progress');
@@ -71,7 +68,7 @@ export default class StepSlider {
 
   
     this.pointermoveHandler = () => {
-      this.pointerMove(event);
+      this.pointerMove();
   };
   
     this.pointerupHandler = () => {
@@ -79,7 +76,9 @@ export default class StepSlider {
     };
 
     this.thumb.addEventListener('pointerdown', (event) => {
+      event.preventDefault();
       this.shiftX = event.clientX - this.thumb.getBoundingClientRect().left;
+      this.slider.classList.add('slider__dragging');
 
     
       document.addEventListener('pointermove', this.pointermoveHandler);
@@ -89,7 +88,6 @@ export default class StepSlider {
 
 pointerMove(event) {
     let slider = this.slider.querySelector('.slider');
-    this.slider.classList.add('slider_dragging');
     let left = event.clientX - this.elem.getBoundingClientRect().left - this.shiftX;
     let leftRelative = left / this.elem.offsetWidth;
 
@@ -132,20 +130,22 @@ pointerMove(event) {
     document.removeEventListener('pointermove', this.pointermoveHandler);
     document.removeEventListener('pointerup', this.pointerupHandler);
 
+}
+
+  dispatchSlider() {
     this.slider.dispatchEvent(new CustomEvent('slider-change' , {
       detail: this.value,
-      bubbles: true
-    }))
-
-}
+      bubbles: true,
+    }));
+  };
   
   
   
-    get elem() { 
-      return this.slider;
-    }
-  
+  get elem() { 
+    return this.slider;
   }
+  
+}
 
 
 
