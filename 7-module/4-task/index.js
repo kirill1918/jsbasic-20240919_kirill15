@@ -80,7 +80,6 @@ export default class StepSlider {
 
   pointerMove(event) {
     const sliderRect = this.slider.getBoundingClientRect();
-    
     let left = event.clientX - sliderRect.left - this.shiftX;
 
     
@@ -99,11 +98,11 @@ export default class StepSlider {
     const value = Math.round((leftPercents / 100) * segments);
 
     
-    if (this.value !== value) {
+    if (!isNaN(value) && this.value !== value) {
       this.value = value;
       this.slider.querySelector('.slider__value').textContent = this.value;
 
-      
+      // Обновляем активные шаги
       const steps = this.slider.querySelectorAll('.slider__steps span');
       for (let i = 0; i < steps.length; i++) {
         steps[i].classList.toggle('slider__step-active', i === this.value);
@@ -120,7 +119,7 @@ export default class StepSlider {
   }
 
   dispatchSlider() {
-    console.log('Event dispatched:', this.value);
+    console.log('Event dispatched:', this.value); // Для отладки
     this.slider.dispatchEvent(new CustomEvent('slider-change', {
       detail: this.value,
       bubbles: true
