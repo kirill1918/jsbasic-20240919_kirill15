@@ -78,7 +78,7 @@ export default class StepSlider {
     this.thumb.addEventListener('pointerdown', (event) => {
       event.preventDefault();
       this.shiftX = event.clientX - this.thumb.getBoundingClientRect().left;
-      this.slider.classList.add('slider__dragging');
+      this.slider.classList.add('slider_dragging');
 
     
       document.addEventListener('pointermove', this.pointermoveHandler);
@@ -125,7 +125,7 @@ pointerMove(event) {
   pointerUp () {
     
     let slider = this.slider.querySelector('.slider');
-    this.slider.classList.remove('slider__dragging');
+    this.slider.classList.remove('slider_dragging');
   
     document.removeEventListener('pointermove', this.pointermoveHandler);
     document.removeEventListener('pointerup', this.pointerupHandler);
