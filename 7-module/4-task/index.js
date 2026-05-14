@@ -22,11 +22,27 @@ export default class StepSlider {
       sliderSteps.appendChild(step);
     }
 
+    this.thumb = this.slider.querySelector('.slider__thumb');
+    this.progress = this.slider.querySelector('.slider__progress');
+
+    
+    this.updatePositionFromValue();
+
     this.Slide();
     this.pointerDown();
   }
 
+  
+  updatePositionFromValue() {
+    const segments = this.steps - 1;
+    const valuePercents = (this.value / segments) * 100;
+
+    this.thumb.style.left = `${valuePercents}%`;
+    this.progress.style.width = `${valuePercents}%`;
+  }
+
   Slide() {
+    
     this.thumb = this.slider.querySelector('.slider__thumb');
     this.progress = this.slider.querySelector('.slider__progress');
 
@@ -80,6 +96,7 @@ export default class StepSlider {
 
   pointerMove(event) {
     const sliderRect = this.slider.getBoundingClientRect();
+    
     let left = event.clientX - sliderRect.left - this.shiftX;
 
     
@@ -93,7 +110,7 @@ export default class StepSlider {
     this.thumb.style.left = `${leftPercents}%`;
     this.progress.style.width = `${leftPercents}%`;
 
-    
+    // Дискретное значение для шагов
     const segments = this.steps - 1;
     const value = Math.round((leftPercents / 100) * segments);
 
@@ -102,7 +119,7 @@ export default class StepSlider {
       this.value = value;
       this.slider.querySelector('.slider__value').textContent = this.value;
 
-      // Обновляем активные шаги
+      
       const steps = this.slider.querySelectorAll('.slider__steps span');
       for (let i = 0; i < steps.length; i++) {
         steps[i].classList.toggle('slider__step-active', i === this.value);
