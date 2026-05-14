@@ -39,49 +39,62 @@ export default class CartIcon {
   }
 
   updatePosition() {
-    const icon = this.elem.querySelector('.cart-icon__inner');
-    const cardContainer = document.querySelector('.container');
+  const icon = this.elem.querySelector('.cart-icon__inner');
+  const cardContainer = document.querySelector('.container');
 
-    
-    if (!icon || !cardContainer) return;
+  if (!icon || !cardContainer) return;
 
-    const pageWidth = window.innerWidth;
-    const initialTopCoord = this.elem.getBoundingClientRect().top + window.pageYOffset;
+  // Инициализируем this.elementTop, если не установлено
+  if (this.elementTop === undefined) {
+    this.elementTop = cardContainer.getBoundingClientRect().top + window.pageYOffset;
+  }
 
-    const iconPosition = cardContainer.getBoundingClientRect().right + 20;
-    const iconLeftPosition = pageWidth - icon.offsetWidth - 10;
-    const leftIndent = Math.min(iconPosition, iconLeftPosition) + 'px';
+  const pageWidth = document.documentElement.clientWidth; // Без учёта скроллбара
+  const rightEdgeOfContainer = cardContainer.getBoundingClientRect().right;
 
-    if (window.innerWidth <= 767) {
-      Object.assign(icon.style, {
-        position: '',
-        top: '',
-        left: '',
-        zIndex: '',
-        width: '',
-        height: ''
-      });
-      return;
-    }
+  // Корректное условие: пользователь прокрутил ниже начальной позиции элемента
+  const isScrolledPastElement = window.scrollY > this.elementTop;
 
-    if (window.pageYOffset > initialTopCoord) {
-      Object.assign(icon.style, {
-        position: 'fixed',
-        top: '50px',
-        left: leftIndent,
-        zIndex: 1000,
-        width: `${icon.offsetWidth}px`,
-        height: `${icon.offsetHeight}px`
-      });
-    } else {
-      Object.assign(icon.style, {
-        position: '',
-        top: '',
-        left: '',
-        zIndex: '',
-        width: '',
-        height: ''
-      });
-    }
+
+  if (pageWidth <= 767) {
+    Object.assign(icon.style, {
+      position: 'absolute',
+      top: '',
+      left: '',
+      zIndex: '',
+      width: '',
+      height: ''
+    });
+  } else if (!isScrolledPastElement) {
+    // Пользователь ещё не доскроллил до элемента — сбрасываем фиксированное позиционирование
+    Object.assign(icon.style, {
+      position: 'absolute',
+      top: '',
+      left: '',
+      zIndex: '',
+      width: '',
+      height: ''
+    });
+  } else if (pageWidth - (rightEdgeOfContainer + 20) - icon.offsetWidth < 10) {
+    // Места справа от контейнера недостаточно — прижимаем к правому краю с отступом 10 px
+    Object.assign(icon.style, {
+      position: 'fixed',
+      top: '50px',
+      left: `${pageWidth - icon.offsetWidth - 10}px`,
+      zIndex: 1000,
+      width: `${icon.offsetWidth}px`,
+      height: `${icon.offsetHeight}px`
+    });
+  } else {
+    // Достаточно места — размещаем на 20 px правее правого края контейнера
+    Object.assign(icon.style, {
+      position: 'fixed',
+      top: '50px',
+      left: `${rightEdgeOfContainer + 20}px`,
+      zIndex: 1000,
+      width: `${icon.offsetWidth}px`,
+      height: `${icon.offsetHeight}px`
+    });
+  }
 }
 }
