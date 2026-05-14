@@ -39,58 +39,47 @@ export default class CartIcon {
   }
 
   updatePosition() {
-  const icon = this.elem.querySelector('.cart-icon__inner');
-  const cardContainer = document.querySelector('.container');
+    if (!this.elem.offsetHeight || !this.elem.offsetWidth) {
+      return;
+    }
 
-  if (!icon || !cardContainer) return;
+    if (document.documentElement.clientWidth <= 767) {
+      Object.assign(this.elem.style, {
+        position: "",
+        top: "",
+        left: "",
+        zIndex: "",
+      });
+      return;
+    }
 
-  if (!this.initialTopCoord) {
-    this.initialTopCoord = this.elem.getBoundingClientRect().top + window.pageYOffset;
+    if (!this.initialTopCoord) {
+      this.initialTopCoord =
+        this.elem.getBoundingClientRect().top + window.pageYOffset;
+    }
+
+    if (window.pageYOffset > this.initialTopCoord) {
+      let container = document.querySelector(".container");
+
+      let leftIndent =
+        Math.min(
+          container.getBoundingClientRect().right + 20,
+          document.documentElement.clientWidth - this.elem.offsetWidth - 10
+        ) + "px";
+
+      Object.assign(this.elem.style, {
+        position: "fixed",
+        top: "50px",
+        zIndex: 1000,
+        left: leftIndent,
+      });
+    } else {
+      Object.assign(this.elem.style, {
+        position: "",
+        top: "",
+        left: "",
+        zIndex: "",
+      });
+    }
   }
-
-  const pageWidth = document.documentElement.clientWidth;
-  const containerRect = cardContainer.getBoundingClientRect();
-  const rightEdgeOfContainer = containerRect.right;
-
-  const iconPosition = rightEdgeOfContainer + 20;
-  const iconLeftPosition = pageWidth - icon.offsetWidth - 10;
-  const leftIndent = Math.min(iconPosition, iconLeftPosition) + 'px';
-
-  // Сохраняем исходные размеры иконки
-  const originalWidth = icon.offsetWidth;
-  const originalHeight = icon.offsetHeight;
-
-  if (pageWidth <= 767) {
-    Object.assign(icon.style, {
-      position: '',
-      top: '',
-      left: '',
-      zIndex: '',
-      width: '',
-      height: ''
-    });
-    return;
-  }
-
-  if (window.pageYOffset > this.initialTopCoord) {
-    // Явно задаём размеры при фиксированном позиционировании
-    Object.assign(icon.style, {
-      position: 'fixed',
-      top: '50px',
-      left: leftIndent,
-      zIndex: 1000,
-      width: `${originalWidth}px`,
-      height: `${originalHeight}px`
-    });
-  } else {
-    Object.assign(icon.style, {
-      position: '',
-      top: '',
-      left: '',
-      zIndex: '',
-      width: '',
-      height: ''
-    });
-  }
-}
 }
