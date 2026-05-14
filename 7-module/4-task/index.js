@@ -31,41 +31,48 @@ export default class StepSlider {
   }
 
   updatePosition() {
-    const segments = Math.max(this.steps - 1, 1); 
-    const valuePercents = (this.value / segments) * 100;
+  const segments = Math.max(this.steps - 1, 1);
+  const valuePercents = (this.value / segments) * 100;
 
-    this.thumb = this.slider.querySelector('.slider__thumb');
-    this.progress = this.slider.querySelector('.slider__progress');
+  this.thumb = this.slider.querySelector('.slider__thumb');
+  this.progress = this.slider.querySelector('.slider__progress');
 
-    if (this.thumb && this.progress) {
-      this.thumb.style.left = `${valuePercents}%`;
-      this.progress.style.width = `${valuePercents}%`;
-    }
+  if (this.thumb && this.progress) {
+    this.thumb.style.left = `${valuePercents}%`;
+    this.progress.style.width = `${valuePercents}%`;
   }
 
-  Slide() {
   
+  if (this.slider.querySelector('.slider__value')) {
+    this.slider.querySelector('.slider__value').textContent = this.value;
+  }
+
+  
+  this.updateActiveStep(this.value);
+}
+
+  Slide() {
   this.slider.addEventListener('click', (event) => {
+    
     let left = event.clientX - this.slider.getBoundingClientRect().left;
     let leftRelative = left / this.slider.offsetWidth;
 
+    
     if (leftRelative < 0) leftRelative = 0;
     if (leftRelative > 1) leftRelative = 1;
 
-    let segments = Math.max(this.steps - 1, 1); 
+    
+    let segments = Math.max(this.steps - 1, 1);
     let approximateValue = leftRelative * segments;
     let value = Math.round(approximateValue);
+
+    
     this.value = value;
 
-    let valuePercents = (value / segments) * 100;
+    
+    this.updatePosition();
 
-    this.thumb.style.left = `${valuePercents}%`;
-    this.progress.style.width = `${valuePercents}%`;
-
-    this.slider.querySelector('.slider__value').textContent = this.value;
-
-    this.updateActiveStep(this.value);
-
+    
     this.dispatchEventBubble();
   });
 }
