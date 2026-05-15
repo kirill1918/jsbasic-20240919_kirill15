@@ -15,7 +15,7 @@ export default class StepSlider {
 
     const sliderSteps = this.slider.querySelector('.slider__steps');
 
-    
+    // Создаём все шаги слайдера
     for (let i = 0; i < this.steps; i++) {
       const step = document.createElement('span');
       step.setAttribute('data-id', i);
@@ -74,10 +74,7 @@ export default class StepSlider {
 
       const onUp = () => {
         
-        if (this.lastSentValue !== this.value) {
-          this.dispatchEventBubble();
-          this.lastSentValue = this.value;
-        }
+        this.dispatchEventBubble();
         this.pointerUp();
         document.removeEventListener('pointermove', onMove);
         document.removeEventListener('pointerup', onUp);
@@ -105,18 +102,10 @@ export default class StepSlider {
     let value = Math.round(approximateValue);
 
     
-    if (!this.lastSentValue) {
-      this.lastSentValue = this.value;
-    }
-
     if (this.value !== value) {
       this.value = value;
       this.slider.querySelector('.slider__value').textContent = this.value;
       this.updateActiveStep(this.value);
-
-      
-      this.dispatchEventBubble();
-      this.lastSentValue = this.value; 
     }
   }
 
@@ -142,6 +131,8 @@ export default class StepSlider {
     return this.slider;
   }
 }
+
+
 
 
 
