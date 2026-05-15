@@ -1,3 +1,4 @@
+
 import createElement from '../../assets/lib/create-element.js';
 
 export default class StepSlider {
@@ -14,7 +15,7 @@ export default class StepSlider {
 
     const sliderSteps = this.slider.querySelector('.slider__steps');
 
-    // Создаём все шаги слайдера
+    
     for (let i = 0; i < this.steps; i++) {
       const step = document.createElement('span');
       step.setAttribute('data-id', i);
@@ -33,7 +34,6 @@ export default class StepSlider {
     this.progress = this.slider.querySelector('.slider__progress');
 
     this.slider.addEventListener('click', (event) => {
-      
       let left = event.clientX - this.slider.getBoundingClientRect().left;
       let leftRelative = left / this.slider.offsetWidth;
       let segments = this.steps - 1;
@@ -48,7 +48,7 @@ export default class StepSlider {
       this.slider.querySelector('.slider__value').textContent = this.value;
       this.updateActiveStep(this.value);
 
-       
+      
       this.dispatchEventBubble();
     });
   }
@@ -64,7 +64,6 @@ export default class StepSlider {
     this.thumb.addEventListener('pointerdown', (event) => {
       event.preventDefault();
 
-      
       this.shiftX = event.clientX - this.thumb.getBoundingClientRect().left;
       this.slider.classList.add('slider_dragging');
 
@@ -74,6 +73,11 @@ export default class StepSlider {
       };
 
       const onUp = () => {
+        
+        if (this.lastSentValue !== this.value) {
+          this.dispatchEventBubble();
+          this.lastSentValue = this.value;
+        }
         this.pointerUp();
         document.removeEventListener('pointermove', onMove);
         document.removeEventListener('pointerup', onUp);
@@ -85,11 +89,9 @@ export default class StepSlider {
   }
 
   pointerMove(event) {
-    
     let left = event.clientX - this.slider.getBoundingClientRect().left;
     let leftRelative = left / this.slider.offsetWidth;
 
-    
     if (leftRelative < 0) leftRelative = 0;
     if (leftRelative > 1) leftRelative = 1;
 
@@ -102,12 +104,19 @@ export default class StepSlider {
     let approximateValue = leftRelative * segments;
     let value = Math.round(approximateValue);
 
+    
+    if (!this.lastSentValue) {
+      this.lastSentValue = this.value;
+    }
+
     if (this.value !== value) {
       this.value = value;
       this.slider.querySelector('.slider__value').textContent = this.value;
       this.updateActiveStep(this.value);
 
+      
       this.dispatchEventBubble();
+      this.lastSentValue = this.value; 
     }
   }
 
