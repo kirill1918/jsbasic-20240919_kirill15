@@ -1,36 +1,47 @@
 function highlight(table) {
-  let tbody = table.querySelector('tbody');
-  let rows = tbody.rows;
-  
-  for(let i = 0; i < rows.length; i++) {
-    const statusCell = rows[i].cells[3]
-    const genderCell = rows[i].cells[2]
-    const AgeCell = rows[i].cells[1] 
+  const tbody = table.querySelector('tbody');
+  const rows = tbody.rows;
 
-  if (statusCell) { 
-    let  availableValue = statusCell.getAttribute('data-available');
-
-    if(availableValue === 'true') { 
-      statusCell.classList.add('available')
-    } if(availableValue === 'false') {
-      statusCell.classList.add('unavailable')
-    } else { 
-      statusCell.setAttribute('hidden' , true)
-    } 
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    const statusCell = row.cells[3];
+    const genderCell = row.cells[2];
+    const ageCell = row.cells[1];
 
     
-    if(genderCell === 'm') { 
-    genderCell.classList.add('male')
-  } else { 
-    genderCell.classList.add('female')
+    if (statusCell) {
+      if (statusCell.hasAttribute('data-available')) {
+        const availableValue = statusCell.getAttribute('data-available');
+
+        if (availableValue === 'true') {
+          statusCell.classList.add('available');
+        } else if (availableValue === 'false') {
+          statusCell.classList.add('unavailable');
+        }
+      } else {
+        
+        statusCell.hidden = true;
+      }
+    }
+
+    
+    if (genderCell) {
+      const genderText = genderCell.textContent.trim();
+      if (genderText === 'm') {
+        genderCell.classList.add('male');
+      } else if (genderText === 'f') {
+        genderCell.classList.add('female');
+      }
+    }
+
+    
+    if (ageCell) {
+      const age = Number(ageCell.textContent);
+
+      if (age < 18) {
+        ageCell.style.textDecoration = 'line-through';
+      }
+    }
   }
-
-  if(AgeCell < 18) { 
-    AgeCell.style.textDecoration = "line-through";
-  }
-}
-
-}
-
 }
 
