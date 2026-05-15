@@ -5,6 +5,10 @@ import Modal from '../../7-module/2-task/index.js';
 
 export default class Cart {
   cartItems = []; // [product: {...}, count: N]
+  modal = null;
+  
+  
+
 
   constructor(cartIcon) {
     this.cartIcon = cartIcon;
@@ -125,8 +129,11 @@ export default class Cart {
 
 
 renderModal() {
-  let modal = new Modal();
-  modal.setTitle('Your order');
+  if(this.modal) {
+    this.modal.close();
+  }
+  this.modal = new Modal();
+  this.modal.setTitle('Your order');
   const modalBody = document.createElement('div');
 
   for (const cartItem of this.cartItems) {
@@ -137,8 +144,8 @@ renderModal() {
     const orderForm = this.renderOrderForm();
     modalBody.appendChild(orderForm);
 
-  modal.setBody(modalBody);
-  modal.open(); 
+  this.modal.setBody(modalBody);
+  this.modal.open(); 
 
   
   const container = modalBody;
@@ -191,8 +198,9 @@ onProductUpdate(cartItem) {
     if (infoPrice) infoPrice.innerHTML = `€${this.getTotalPrice().toFixed(2)}`;
   }
 
-  if (this.isEmpty()) {
-    this.modal.closeModal();
+  
+  if (this.isEmpty() && this.modal) { // если корзина пустая
+    this.modal.close(); 
   }
 
   this.cartIcon.update(this);
@@ -200,23 +208,28 @@ onProductUpdate(cartItem) {
 
 
   onSubmit(event) {
-    event.preventDefault();
-    
-    
-    let submitButton = document.querySelector('[type="submit"]');
-    submitButton.classList.add('is-loading');
-    const form = document.querySelector('.cart-form');
-    const modal = new Modal();
+  event.preventDefault();
 
-    fetch('https://httpbin.org/post', {
-        method: 'POST',
-        body: new FormData(form)
-    })
-    .then(response => {
-        if (response.ok) {
-            modal.setTitle('Success!');
-            this.cartItems = []; 
-             const successMessage = createElement(`
+  let submitButton = document.querySelector('[type="submit"]');
+  submitButton.classList.add('is-loading');
+  const form = document.querySelector('.cart-form');
+
+  fetch('https://httpbin.org/post', {
+    method: 'POST',
+    body: new FormData(form)
+  })
+  .then(response => {
+    if (response.ok) {
+      if (this.modal) {
+        this.modal.close();
+      }
+
+      
+      this.modal = new Modal();
+      this.modal.setTitle('Success!');
+      this.cartItems = []; 
+
+      const successMessage = createElement(`
         <div class="modal__body-inner">
           <p>
             Order successful! Your order is being cooked :) <br>
@@ -226,11 +239,13 @@ onProductUpdate(cartItem) {
         </div>
       `);
 
-        modal.setBody(successMessage);
-        modal.open(); 
-          
-        }
-    });
+      this.modal.setBody(successMessage);
+      this.modal.open();
+
+      
+      submitButton.classList.remove('is-loading');
+    }
+  });
 }
 
   
@@ -241,6 +256,8 @@ onProductUpdate(cartItem) {
   addEventListeners() {
     this.cartIcon.elem.onclick = () => this.renderModal();
   }
+
+}
 
 }
 
