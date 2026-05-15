@@ -4,135 +4,139 @@ export default class StepSlider {
   constructor({ steps, value = 0 }) {
     this.steps = steps;
     this.value = value;
-    this.slider = createElement(`
-      <div class="slider">
+    this.slider = createElement(`<div class="slider">
         <div class="slider__thumb">
           <span class="slider__value">${this.value}</span>
-        </div>        
-        <div class="slider__progress" style='width: 0%;'></div>
-        <div class="slider__steps">
         </div>
-      </div>
-    `)
+        <div class="slider__progress"></div>
+        <div class="slider__steps"></div>
+      </div>`);
 
-    this.sliderSteps = this.slider.querySelector('.slider__steps');
+    const sliderSteps = this.slider.querySelector('.slider__steps');
+
     for (let i = 0; i < this.steps; i++) {
-      this.sliderSteps.append(document.createElement('span'));
-    };
-    this.sliderSteps.querySelector('span').classList.add('slider__step-active');
+      const step = document.createElement('span');
+      step.setAttribute('data-id', i); 
+      if (i === this.value) {
+        step.classList.add('slider__step-active');
+      }
+      sliderSteps.appendChild(step);
+    }
 
-    this.setInitialValue(this.value);
-    this.clickListener();
-    this.DND();
-  }
-
-  setInitialValue(value) {
-    let sliderValue = this.slider.querySelector('.slider__value');
-    let sliderThumb = this.slider.querySelector('.slider__thumb');
-    let sliderProgress = this.slider.querySelector('.slider__progress');
-    let points = [...this.sliderSteps.querySelectorAll('span')];
-
-    points.forEach(el => el.classList.remove('slider__step-active'));
-    points[value].classList.add('slider__step-active');
-
-    let currentPercent = (value / (this.steps - 1)) * 100 + '%';
-    sliderThumb.style.left = currentPercent;
-    sliderProgress.style.width = currentPercent;
-    sliderValue.innerHTML = value;
-  }
-
-  clickListener() {
-    this.slider.addEventListener('slider-change', () => {});
-
-    this.slider.addEventListener('click', e => {
-      this.calculateClosestPoint(e.clientX)
-    })
-  }
-
-  DND() {
-    let sliderThumb = this.slider.querySelector('.slider__thumb');
-    let sliderProgress = this.slider.querySelector('.slider__progress');
-    sliderThumb.ondragstart = () => false;
     
-    sliderThumb.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      this.slider.classList.add('slider_dragging');
-      let sliderWidth = this.slider.offsetWidth;
+    this.Slide();
+    this.pointerDown();
+  }
+
+  Slide() { 
+  this.thumb = this.slider.querySelector('.slider__thumb');
+  this.progress = this.slider.querySelector('.slider__progress');
+
+  this.slider.addEventListener('click' , (event) => { 
+      let left = event.clientX - this.elem.getBoundingClientRect().left;
+      let leftRelative = left / this.elem.offsetWidth;
+      let segments = this.steps - 1;
+      let approximateValue = leftRelative * segments;
+      let value = Math.round(approximateValue);
+      let valuePercents = value / segments * 100;
+      this.thumb.style.left = `${valuePercents}%`;
+      this.progress.style.width = `${valuePercents}%`;
+      this.value = value;
       
-      let shiftX = this.slider.getBoundingClientRect().left;
-      let rightShiftX = this.slider.getBoundingClientRect().right;
-
-      sliderThumb.style.position = 'absolute';
-      sliderThumb.style.zIndex = 1000;
-
-      const moveAt =(clientX) => {
-        if (clientX < shiftX) {clientX = shiftX};
-        if (clientX > rightShiftX) {clientX = rightShiftX};
-        sliderThumb.style.left = (clientX - shiftX) / sliderWidth * 100 + '%';
-        sliderProgress.style.width = (clientX - shiftX) / sliderWidth * 100 + '%';
-
-        let points = [...this.sliderSteps.querySelectorAll('span')];
-        let pointsXCordinates = points.map(point => point.getBoundingClientRect().x);
-        let sliderValue = this.slider.querySelector('.slider__value');
-
-        points.map(el => el.classList.remove('slider__step-active'));
-
-        let distance = pointsXCordinates.map(el => (el - sliderThumb.getBoundingClientRect().x));
-        let positiveDistance = distance.map(el => el >= 0 ? el : -el);
-        let closestPoint = Math.min.apply(null, positiveDistance);
-        let targetPoint = positiveDistance.indexOf(closestPoint);
-
-        sliderValue.innerHTML = targetPoint;
-        points[targetPoint].classList.add('slider__step-active');
+      this.slider.querySelector('.slider__value').textContent = this.value;
+      
+      const steps = this.slider.querySelectorAll('.slider__steps span');
+      for (let i = 0; i < steps.length; i++) {
+        if (i === this.value) {
+          steps[i].classList.add('slider__step-active');
+        } else {
+          steps[i].classList.remove('slider__step-active');
+        }
       }
-
-      moveAt(e.clientX);
-    
-      function onPointerMove(e) {
-        e.preventDefault();
-        moveAt(e.clientX);
-      }
-
-      document.addEventListener('pointermove', onPointerMove);
-
-      document.onpointerup = () => {
-        document.removeEventListener('pointermove', onPointerMove);
-        this.slider.classList.remove('slider_dragging');
-        document.onpointerup = null;
-
-        this.calculateClosestPoint(sliderThumb.getBoundingClientRect().x)
-      };
     })
   }
 
-  calculateClosestPoint(coordinates) {
-    let points = [...this.sliderSteps.querySelectorAll('span')];
-    let pointsXCordinates = points.map(point => point.getBoundingClientRect().x);
-    let sliderValue = this.slider.querySelector('.slider__value');
-    let sliderThumb = this.slider.querySelector('.slider__thumb');
-    let sliderProgress = this.slider.querySelector('.slider__progress')
+  pointerDown() {
+    this.thumb = this.slider.querySelector('.slider__thumb');
+    this.progress = this.slider.querySelector('.slider__progress');
+    this.thumb.ondragstart = () => false;
 
-    points.map(el => el.classList.remove('slider__step-active'));
+  
+    this.thumb.style.position = 'absolute';
+    this.thumb.style.zIndex = 9999;
 
-    let distance = pointsXCordinates.map(el => (el - coordinates));
-    let positiveDistance = distance.map(el => el >= 0 ? el : -el);
-    let closestPoint = Math.min.apply(null, positiveDistance);
-    let targetPoint = positiveDistance.indexOf(closestPoint);
+  this.thumb.addEventListener('pointerdown', (event) => {
+    event.preventDefault();
+    
+    this.shiftX = event.clientX - this.thumb.getBoundingClientRect().left;
+    this.slider.classList.add('slider_dragging');
 
-    sliderValue.innerHTML = targetPoint;
-    points[targetPoint].classList.add('slider__step-active');
-    let currentPercent = (((targetPoint) / (this.steps - 1)) * 100) + '%';
-    sliderThumb.style.left = currentPercent;
-    sliderProgress.style.width = currentPercent;
+    const onMove = (moveEvent) => {
+      moveEvent.preventDefault();
+      this.pointerMove(moveEvent);
+    };
 
-    this.slider.dispatchEvent( new CustomEvent('slider-change', {
-      detail: targetPoint,
-      bubbles: true,
-    }))
+    const onUp = () => {
+      this.pointerUp();
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+    };
+
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+  });
+}
+
+pointerMove(event) {
+  
+  let left = event.clientX - this.slider.getBoundingClientRect().left - this.shiftX;
+  let leftRelative = left / this.slider.offsetWidth;
+
+  
+  if (leftRelative < 0) leftRelative = 0;
+  if (leftRelative > 1) leftRelative = 1;
+
+  
+  let leftPercents = leftRelative * 100;
+
+  
+  this.thumb.style.left = `${leftPercents}%`;
+  this.progress.style.width = `${leftPercents}%`;
+
+  
+  let segments = Math.max(this.steps - 1, 1);
+  let approximateValue = leftRelative * segments;
+  let value = Math.round(approximateValue);
+
+  
+  if (this.value !== value) {
+    this.value = value;
+    this.slider.querySelector('.slider__value').textContent = this.value;
+    this.updateActiveStep(this.value);
+  }
+}
+
+pointerUp() {
+  this.slider.classList.remove('slider_dragging');
+  this.dispatchEventBubble();
+}
+
+  updateActiveStep(value) {
+    const steps = this.slider.querySelectorAll('.slider__steps span');
+    steps.forEach(step => step.classList.remove('slider__step-active'));
+    steps[value].classList.add('slider__step-active');
+  }
+
+  dispatchEventBubble() {
+    const customEvent = new CustomEvent('slider-change', {
+      detail: this.value,
+      bubbles: true
+    });
+    this.slider.dispatchEvent(customEvent);
   }
 
   get elem() {
-    return this.slider
+    return this.slider;
   }
 }
 
