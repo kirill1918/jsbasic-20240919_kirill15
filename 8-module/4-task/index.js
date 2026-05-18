@@ -240,22 +240,22 @@ onProductUpdate(cartItem) {
 }
 
 
-  onSubmit(event) {
+  
+onSubmit(event) {
   event.preventDefault();
 
-  const modalBody = document.querySelector('.modal__body');
-  let submitButton = null;
+  const submitButton = document.querySelector('.modal__body [type="submit"]');
+  if (!submitButton) return;
 
-  if (modalBody) {
-    submitButton = modalBody.querySelector('[type="submit"]');
-  }
-
-  if (!submitButton) {
-    return;
-  }
 
   submitButton.classList.add('is-loading');
+
+
   const form = document.querySelector('.cart-form');
+  if (!form) {
+    submitButton.classList.remove('is-loading');
+    return;
+  }
 
   fetch('https://httpbin.org/post', {
     method: 'POST',
@@ -263,13 +263,11 @@ onProductUpdate(cartItem) {
   })
   .then(response => {
     if (response.ok) {
-      
       if (this.modal) {
         this.modal.close();
-        this.modal = null; 
+        this.modal = null;
       }
 
-      
       this.modal = new Modal();
       this.modal.setTitle('Success!');
       this.cartItems = [];
@@ -285,7 +283,7 @@ onProductUpdate(cartItem) {
       `);
 
       this.modal.setBody(successMessage);
-      this.modal.open(); 
+      this.modal.open();
     }
   })
   .finally(() => {
