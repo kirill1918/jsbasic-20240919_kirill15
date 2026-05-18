@@ -243,52 +243,30 @@ onProductUpdate(cartItem) {
   
 
 onSubmit(event) {
-  event.preventDefault();
+    event.preventDefault();
+    let submitButton = document.querySelector('[type="submit"]');
+    submitButton.classList.add('is-loading');
+    let form = document.querySelector('.cart-form')
 
-  const submitButton = document.querySelector('.modal__body [type="submit"]');
-  if (!submitButton) return;
-
-  submitButton.classList.add('is-loading');
-
-  const form = document.querySelector('.cart-form');
-  if (!form) {
-    submitButton.classList.remove('is-loading');
-    return;
-  }
-
-  fetch('https://httpbin.org/post', {
-    method: 'POST',
-    body: new FormData(form)
-  })
-  .then(response => {
-    if (response.ok) {
-      // Закрываем окно — кнопка удаляется из DOM
-      if (this.modal) {
-        this.modal.close();
-        this.modal = null;
-      }
-
-      // Создаём новое окно с сообщением об успехе
-      this.modal = new Modal();
-      this.modal.setTitle('Success!');
-      this.cartItems = [];
-
-      const successMessage = createElement(`
-        <div class="modal__body-inner">
-          <p>
-            Order successful! Your order is being cooked :) <br>
-            We’ll notify you about delivery time shortly.<br>
-            <img src="/assets/images/delivery.gif">
-          </p>
-        </div>
-      `);
-
-      this.modal.setBody(successMessage);
-      this.modal.open();
-    }
-  })
-
-}
+    fetch('https://httpbin.org/post', {
+      method: "POST",
+      body: new FormData(form)
+    }).then((response) => {
+      if (response.ok) {
+        this.modal.setTitle('Success!');
+        this.cartItems = [];
+        this.cartIcon.update(this);
+        this.modal.setBody(createElement(`
+          <div class="modal__body-inner">
+            <p>
+              Order successful! Your order is being cooked :) <br>
+              We’ll notify you about delivery time shortly.<br>
+              <img src="/assets/images/delivery.gif">
+            </p>
+          </div>
+        `));
+      };})
+  };
 
   
 
