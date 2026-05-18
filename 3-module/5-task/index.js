@@ -1,7 +1,8 @@
 let str = '1 и -5.8 или 10 хотя 34 + -5.3 и 73';
 
 function getMinMax(str) {
-    let str1 = str.split(' ')
+    let str1 = str.split(' ');
+    console.log(str1);
     let arr = [] 
     let value = str1;
 
