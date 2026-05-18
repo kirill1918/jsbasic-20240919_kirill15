@@ -259,6 +259,5 @@ onProductUpdate(cartItem) {
 
 }
 
-}
 
 
