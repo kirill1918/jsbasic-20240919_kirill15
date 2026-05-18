@@ -87,21 +87,22 @@ export default class Main {
       });
     });
 
-    document.body.addEventListener('change' , event => { 
-      const target = event.target.closest('.filters__checkbox')
-      if(event.target.id === 'nuts-checkbox') { 
-        this.productGrid.updateFilter({
-          noNuts: event.target.checked
-        })
-      }
+    
+    document.body.addEventListener('change', event => {
+      const target = event.target.closest('.filters__checkbox');
+      if (!target) return;
 
+  
+      const currentFilters = {
+        noNuts: document.getElementById('nuts-checkbox').checked,
+        vegeterianOnly: document.getElementById('vegeterian-checkbox').checked,
+        maxSpiciness: this.stepSlider.value,
+        category: this.ribbonMenu.value
+      };
 
-      if(event.target.id === 'vegeterian-checkbox') { 
-        this.productGrid.updateFilter({
-          vegeterianOnly: event.target.checked
-        })
-      }
-    })
+  
+      this.productGrid.updateFilter(currentFilters);
+    });
 
     
 
