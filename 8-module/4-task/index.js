@@ -50,6 +50,7 @@ export default class Cart {
     
     if (cartItem.count === 0) {
       this.cartItems = this.cartItems.filter(item => item.id  !== productId);
+      this.onProductUpdate(null);
     }
     this.onProductUpdate(cartItem);
   }
@@ -67,13 +68,14 @@ export default class Cart {
     return totalCount;
   }
 
-  getTotalPrice() { 
-    let totalCount = 0;
-    for (let i = 0; i < this.cartItems.length; i++) { 
+  
+  getTotalPrice() {
+    let totalPrice = 0;
+    for (let i = 0; i < this.cartItems.length; i++) {
       const item = this.cartItems[i];
-      totalCount = totalCount + (item.count * item.price);
+      totalPrice += item.count * item.price;
     }
-    return totalCount;
+    return totalPrice;
   }
 
   renderProduct(product, count) {
@@ -160,7 +162,6 @@ renderModal() {
       const productCard = button.closest('.cart-product');
       const productId = productCard.dataset.productId;
       this.updateProductCount(productId, 1);
-      this.renderModal();
     });
   }
 
@@ -170,7 +171,7 @@ renderModal() {
       const productCard = button.closest('.cart-product');
       const productId = productCard.dataset.productId;
       this.updateProductCount(productId, -1);
-      this.renderModal();
+      
     });
   }
 
@@ -185,22 +186,41 @@ renderModal() {
 }
 
 onProductUpdate(cartItem) {
-  if (document.body.classList.contains('is-modal-open')) {
-    let productId = cartItem.id;
-    let modalBody = document.querySelector('.modal__body');
-
-    let productCount = modalBody.querySelector(`[data-product-id="${productId}"] .cart-counter__count`);
-    let productPrice = modalBody.querySelector(`[data-product-id="${productId}"] .cart-product__price`);
-    let infoPrice = modalBody.querySelector('.cart-buttons__info-price');
-
-    if (productCount) productCount.innerHTML = cartItem.count;
-    if (productPrice) productPrice.innerHTML = `€${(cartItem.price * cartItem.count).toFixed(2)}`;
-    if (infoPrice) infoPrice.innerHTML = `€${this.getTotalPrice().toFixed(2)}`;
+  if (!cartItem || !cartItem.id) {
+    if (document.body.classList.contains('is-modal-open')) {
+      const modalBody = document.querySelector('.modal__body');
+      const infoPrice = modalBody?.querySelector('.cart-buttons__info-price');
+      if (infoPrice) {
+        infoPrice.textContent = `€${this.getTotalPrice().toFixed(2)}`;
+      }
+    }
+    if (this.isEmpty() && this.modal) {
+      setTimeout(() => {
+        this.modal.close();
+        this.modal = null;
+      }, 0);
+    }
+    this.cartIcon.update(this);
+    return;
   }
 
-  
-  if (this.isEmpty() && this.modal) { // если корзина пустая
-    this.modal.close(); 
+  if (document.body.classList.contains('is-modal-open')) {
+    const productId = cartItem.id;
+    const modalBody = document.querySelector('.modal__body');
+
+    const productCount = modalBody.querySelector(`[data-product-id="${productId}"] .cart-counter__count`);
+    const productPrice = modalBody.querySelector(`[data-product-id="${productId}"] .cart-product__price`);
+    const infoPrice = modalBody.querySelector('.cart-buttons__info-price');
+
+    if (productPrice) {
+      productPrice.textContent = `€${(cartItem.price * cartItem.count).toFixed(2)}`;
+    }
+    if (infoPrice) {
+      infoPrice.textContent = `€${this.getTotalPrice().toFixed(2)}`;
+    }
+    if (productCount) {
+      productCount.textContent = cartItem.count;
+    }
   }
 
   this.cartIcon.update(this);
