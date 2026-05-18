@@ -185,32 +185,46 @@ renderModal() {
   }
 }
 
+
 onProductUpdate(cartItem) {
   if (!cartItem || !cartItem.id) {
     if (document.body.classList.contains('is-modal-open')) {
       const modalBody = document.querySelector('.modal__body');
-      const infoPrice = modalBody?.querySelector('.cart-buttons__info-price');
+      let infoPrice = null;
+
+      if (modalBody) {
+        infoPrice = modalBody.querySelector('.cart-buttons__info-price');
+      }
+
       if (infoPrice) {
         infoPrice.textContent = `€${this.getTotalPrice().toFixed(2)}`;
       }
     }
+
+   
     if (this.isEmpty() && this.modal) {
-      setTimeout(() => {
-        this.modal.close();
-        this.modal = null;
-      }, 0);
+      this.modal.close();
+      this.modal = null;
     }
+
     this.cartIcon.update(this);
     return;
   }
 
+  
   if (document.body.classList.contains('is-modal-open')) {
     const productId = cartItem.id;
     const modalBody = document.querySelector('.modal__body');
 
-    const productCount = modalBody.querySelector(`[data-product-id="${productId}"] .cart-counter__count`);
-    const productPrice = modalBody.querySelector(`[data-product-id="${productId}"] .cart-product__price`);
-    const infoPrice = modalBody.querySelector('.cart-buttons__info-price');
+    let productCount = null;
+    let productPrice = null;
+
+    if (modalBody) {
+      productCount = modalBody.querySelector(`[data-product-id="${productId}"] .cart-counter__count`);
+      productPrice = modalBody.querySelector(`[data-product-id="${productId}"] .cart-product__price`);
+    }
+
+    const infoPrice = document.querySelector('.cart-buttons__info-price');
 
     if (productPrice) {
       productPrice.textContent = `€${(cartItem.price * cartItem.count).toFixed(2)}`;
@@ -230,7 +244,18 @@ onProductUpdate(cartItem) {
   onSubmit(event) {
   event.preventDefault();
 
-  let submitButton = document.querySelector('[type="submit"]');
+  const modalBody = document.querySelector('.modal__body');
+  let submitButton = null;
+
+  
+  if (modalBody) {
+    submitButton = modalBody.querySelector('[type="submit"]');
+  }
+
+  if (!submitButton) {
+    return;
+  }
+
   submitButton.classList.add('is-loading');
   const form = document.querySelector('.cart-form');
 
@@ -244,10 +269,9 @@ onProductUpdate(cartItem) {
         this.modal.close();
       }
 
-      
       this.modal = new Modal();
       this.modal.setTitle('Success!');
-      this.cartItems = []; 
+      this.cartItems = [];
 
       const successMessage = createElement(`
         <div class="modal__body-inner">
@@ -261,8 +285,10 @@ onProductUpdate(cartItem) {
 
       this.modal.setBody(successMessage);
       this.modal.open();
-
-      
+    }
+  })
+  .finally(() => {
+    if (submitButton) {
       submitButton.classList.remove('is-loading');
     }
   });
