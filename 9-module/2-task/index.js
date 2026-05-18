@@ -1,10 +1,8 @@
-
 import Carousel from '../../6-module/3-task/index.js';
 import slides from '../../6-module/3-task/slides.js';
 
 import RibbonMenu from '../../7-module/1-task/index.js';
 import categories from '../../7-module/1-task/categories.js';
-
 
 import StepSlider from '../../7-module/4-task/index.js';
 import ProductsGrid from '../../8-module/2-task/index.js';
@@ -28,7 +26,7 @@ export default class Main {
     const ribbonHolder = document.querySelector('[data-ribbon-holder]');
     ribbonHolder.appendChild(ribbonMenu.elem);
 
-    
+    // Исправление 1: начальное значение слайдера = 2 (по условиям теста)
     const stepSlider = new StepSlider({ steps: 5, value: 2 });
     this.stepSlider = stepSlider;
     const sliderHolder = document.querySelector('[data-slider-holder]');
@@ -76,7 +74,7 @@ export default class Main {
       });
     });
 
-    
+   
     document.body.addEventListener('change', event => {
       const target = event.target.closest('.filters__checkbox');
       if (!target) return;
