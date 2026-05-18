@@ -131,32 +131,34 @@ export default class Cart {
 
 
 renderModal() {
-  if(this.modal) {
+  if (this.modal) {
     this.modal.close();
   }
   this.modal = new Modal();
   this.modal.setTitle('Your order');
+
   const modalBody = document.createElement('div');
 
+  // Сначала добавляем товары
   for (const cartItem of this.cartItems) {
     const productCard = this.renderProduct(cartItem, cartItem.count);
     modalBody.appendChild(productCard);
   }
 
-    const orderForm = this.renderOrderForm();
-    modalBody.appendChild(orderForm);
+  
+  const orderForm = this.renderOrderForm();
+  modalBody.appendChild(orderForm);
 
+  
   this.modal.setBody(modalBody);
-  this.modal.open(); 
+  this.modal.open();
 
   
-  const container = modalBody;
+  const container = document.querySelector('.modal__body'); 
 
-  
   const plusButtons = container.querySelectorAll('.cart-counter__button_plus');
   const minusButtons = container.querySelectorAll('.cart-counter__button_minus');
 
-  
   for (const button of plusButtons) {
     button.addEventListener('click', () => {
       const productCard = button.closest('.cart-product');
@@ -165,17 +167,14 @@ renderModal() {
     });
   }
 
-  
   for (const button of minusButtons) {
     button.addEventListener('click', () => {
       const productCard = button.closest('.cart-product');
       const productId = productCard.dataset.productId;
       this.updateProductCount(productId, -1);
-      
     });
   }
 
- 
   const cartForm = container.querySelector('.cart-form');
   if (cartForm) {
     cartForm.addEventListener('submit', (event) => {
@@ -247,7 +246,6 @@ onProductUpdate(cartItem) {
   const modalBody = document.querySelector('.modal__body');
   let submitButton = null;
 
-  
   if (modalBody) {
     submitButton = modalBody.querySelector('[type="submit"]');
   }
@@ -265,10 +263,13 @@ onProductUpdate(cartItem) {
   })
   .then(response => {
     if (response.ok) {
+      
       if (this.modal) {
         this.modal.close();
+        this.modal = null; 
       }
 
+      
       this.modal = new Modal();
       this.modal.setTitle('Success!');
       this.cartItems = [];
@@ -284,11 +285,12 @@ onProductUpdate(cartItem) {
       `);
 
       this.modal.setBody(successMessage);
-      this.modal.open();
+      this.modal.open(); 
     }
   })
   .finally(() => {
-    if (submitButton) {
+    
+    if (submitButton && submitButton.classList) {
       submitButton.classList.remove('is-loading');
     }
   });
