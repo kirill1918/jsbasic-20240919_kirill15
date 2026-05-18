@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> e1545f5efaece7cf2f8bcecbd682828c4acecc91
 function showSalary(users, age) {
   const result = [];
   for (let i = 0;  i < users.length; i++) { 

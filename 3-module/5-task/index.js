@@ -1,33 +1,28 @@
-let str = '1 и -5.8 или 10 хотя 34 + -5.3 и 73';
-
 function getMinMax(str) {
+<<<<<<< HEAD
     let str1 = str.split(' ');
     console.log(str1);
     let arr = [] 
     let value = str1;
+=======
+    let str2 = str.split(' ');
+    let nu2 = [];
+>>>>>>> e1545f5efaece7cf2f8bcecbd682828c4acecc91
 
-    for (let i = 0; i < value.length; i++) { 
-        const number  = Number(value[i])
-        
-        if(!isNaN(number)) { 
-            arr.push(number)
+    for (let index in str2) {
+        let num = Number(str2[index]); 
+        if (!isNaN(num)) { 
+            nu2.push(num); 
         }
-        
     }
 
-    let min  = Math.min(...arr)
-    let max = Math.max(...arr)
-
-    return { min: min, max: max };
-
     
+    let min1 = Math.min(...nu2);
+    let max1 = Math.max(...nu2);
+
+
+    return { min: min1, max: max1 };
 }
 
-    
-
-
-
-let result = getMinMax(str);
-console.log(result.min , result.max)
 
 

@@ -259,4 +259,6 @@ onProductUpdate(cartItem) {
 
 }
 
+}
+
 
