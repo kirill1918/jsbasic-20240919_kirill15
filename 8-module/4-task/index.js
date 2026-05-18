@@ -241,15 +241,14 @@ onProductUpdate(cartItem) {
 
 
   
+
 onSubmit(event) {
   event.preventDefault();
 
   const submitButton = document.querySelector('.modal__body [type="submit"]');
   if (!submitButton) return;
 
-
   submitButton.classList.add('is-loading');
-
 
   const form = document.querySelector('.cart-form');
   if (!form) {
@@ -263,11 +262,13 @@ onSubmit(event) {
   })
   .then(response => {
     if (response.ok) {
+      // Закрываем окно — кнопка удаляется из DOM
       if (this.modal) {
         this.modal.close();
         this.modal = null;
       }
 
+      // Создаём новое окно с сообщением об успехе
       this.modal = new Modal();
       this.modal.setTitle('Success!');
       this.cartItems = [];
@@ -286,12 +287,7 @@ onSubmit(event) {
       this.modal.open();
     }
   })
-  .finally(() => {
-    
-    if (submitButton && submitButton.classList) {
-      submitButton.classList.remove('is-loading');
-    }
-  });
+
 }
 
   
